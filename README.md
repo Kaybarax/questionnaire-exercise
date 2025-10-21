@@ -1,47 +1,78 @@
-# Heartbeat Engineering Exercise
+# CLI Questionnaire Engine
 
-> 🚨 Please fork the repository and complete the exercise in your forked **private** repository. 
-> Once completed, please invite us to your repository.
+A flexible, CLI-based questionnaire engine that prompts users with configurable questions, supports conditional logic, validates responses, and provides session summaries. Built with TypeScript and Node.js.
 
-Thank you for your interest in Heartbeat! We are excited to see your skills in action through this engineering exercise.
-This exercise is designed to assess your coding skills, problem-solving abilities, and understanding of software development 
-best practices. Please read the instructions carefully and complete the tasks as specified.
+## Features
 
+- **Configurable Questions**: Define questionnaires in JSON format
+- **Multiple Question Types**: Support for text input, yes/no, and multiple-choice questions
+- **Conditional Logic**: Show/hide questions based on previous answers
+- **Response Validation**: Type-specific validation with clear error messages
+- **Cyclic Sessions**: Complete multiple questionnaires without restarting
+- **Session Summaries**: View all responses at the end of each session
+- **Graceful Error Handling**: User-friendly error messages and recovery
 
-## Overview
+## Quick Start
 
-This repository contains a simple node CLI application. It includes a few basic commands and a simple file structure.
+### Installation
 
+```bash
+npm install
 ```
-├── src/
-│   ├── engine.ts
-│   ├── logger.ts
-│   └── main.ts
-├── tests/
-│   └── engine.test.ts
+
+### Running the Application
+
+```bash
+npm start
 ```
-The general structure of the files doesn't need to be changed, but feel free to add any additional files 
-or folders as needed.
 
-## Task
+The application will load the questionnaire from `questionnaire.json` and begin prompting you with questions.
 
-Build a CLI-based Questionnaire engine that prompts users with a series of questions and records their answers. 
-A questionnaire session should be completed with a summary of the user's responses.
+### Running Tests
 
-### Requirements
+```bash
+# Run all tests
+npm test
 
-- The application question-set should be configurable with configuration file (e.g., JSON or YAML).
-- Questions should be sequentially presented to the user.
-- Questions can be conditionally shown based on previous answers. (for example, Do you have a pet? If yes, ask what kind of pet)
-- The program should be cyclic. (i.e., after completing a questionnaire, the user should be able to start a new one without restarting the application).
-- Document your chosen architecture and design decisions.
-- Errors should, of course, be handled gracefully.
+# Run tests in watch mode
+npm run test:watch
 
-### Bonus Points
+# Run tests with coverage
+npm run test:coverage
+```
 
-- Questions can have different types and corresponding validation (e.g., multiple-choice, text input, yes/no).
-- Include unit tests for your code.
+## Usage
 
+When you start the application, you'll be guided through a series of questions. After completing a questionnaire session, you'll see a summary of your responses and be prompted to either start a new session or exit.
+
+### Example Session
+
+```text
+=== Pet Ownership Survey ===
+
+Question 1: What is your name?
+> John Doe
+
+Question 2: Do you have a pet? (yes/no)
+> yes
+
+Question 3: What kind of pet do you have?
+  1. Dog
+  2. Cat
+  3. Bird
+  4. Other
+> 1
+
+=== Session Summary ===
+1. What is your name? → John Doe
+2. Do you have a pet? → yes
+3. What kind of pet do you have? → Dog
+
+Would you like to start a new session? (yes/no)
+> no
+
+Thank you for using the Questionnaire Engine!
+```
 
 ## Configuration Format
 
@@ -65,44 +96,323 @@ The questionnaire is defined in `questionnaire.json` in the project root. The co
 }
 ```
 
+### Configuration Fields
+
+- **title** (required): The title of the questionnaire, displayed at the start of each session
+- **questions** (required): Array of question objects
+
+### Question Object Fields
+
+- **id** (required): Unique identifier for the question (used for conditional logic)
+- **text** (required): The question text to display to the user
+- **type** (required): The question type - one of: `text`, `yesno`, or `multiple-choice`
+- **choices** (conditional): Array of choice strings (required only for `multiple-choice` type)
+- **condition** (optional): Conditional display logic object
+
 ### Question Types
 
-- **text**: Accepts any non-empty string input
-- **yesno**: Accepts "yes", "no", "y", or "n" (case-insensitive)
-- **multiple-choice**: Accepts one of the predefined choices (requires `choices` array)
+#### Text Input
+
+Accepts any non-empty string input.
+
+```json
+{
+  "id": "name",
+  "text": "What is your name?",
+  "type": "text"
+}
+```
+
+#### Yes/No
+
+Accepts "yes", "no", "y", or "n" (case-insensitive).
+
+```json
+{
+  "id": "has_pet",
+  "text": "Do you have a pet?",
+  "type": "yesno"
+}
+```
+
+#### Multiple Choice
+
+Presents numbered options and accepts the number or exact text of a choice.
+
+```json
+{
+  "id": "pet_type",
+  "text": "What kind of pet do you have?",
+  "type": "multiple-choice",
+  "choices": ["Dog", "Cat", "Bird", "Other"]
+}
+```
 
 ### Conditional Questions
 
-Questions can be conditionally displayed based on previous answers:
+Questions can be conditionally displayed based on previous answers using the `condition` field:
 
-- `condition.questionId`: The ID of the question whose answer determines if this question is shown
-- `condition.expectedAnswer`: The answer(s) that trigger this question to be displayed (can be a string or array of strings)
+- **questionId**: The ID of the question whose answer determines if this question is shown
+- **expectedAnswer**: The answer(s) that trigger this question to be displayed (can be a string or array of strings)
 
 If a question has no `condition` field, it will always be displayed.
 
-### Example
+#### Example: Conditional Question
 
-See `questionnaire.json` for a complete example with text, yes/no, and multiple-choice questions, including conditional logic.
+```json
+{
+  "id": "pet_name",
+  "text": "What is your pet's name?",
+  "type": "text",
+  "condition": {
+    "questionId": "has_pet",
+    "expectedAnswer": ["yes", "y"]
+  }
+}
+```
 
-## Submission
+This question will only be shown if the user answered "yes" or "y" to the "has_pet" question.
 
-### Time
+### Complete Example
 
-> We expect you to spend no more than 4 hours on this exercise. Please prioritize quality over quantity. If you can't complete all tasks/requirements, let us know in your submission how you would extend it.
+See `questionnaire.json` for a complete example with all question types and conditional logic.
 
-### External assistance
+## Architecture
 
-- You may use external utility libraries if it helps you speed things up. Do share your reasoning if you decide to share something uncommon.
-- We expect you to write the core logic yourself. You can use internet search or LLMs to clarify concepts or get unstuck, but please do not get the AI to write the code for you.
-As it is obvious, it defeats the purpose of the exercise and would disqualify your submission.
+The application follows a modular, layered architecture with clear separation of concerns:
 
-### Process
+```text
+┌─────────────────────────────────────────────────────────┐
+│                      Main Entry Point                    │
+│                    (Orchestration Layer)                 │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                  Questionnaire Engine                    │
+│              (Core Business Logic Layer)                 │
+│  - Session Management                                    │
+│  - Question Flow Control                                 │
+│  - Response Collection                                   │
+└─────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        ▼                   ▼                   ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│ Config       │   │ User Input   │   │ Validator    │
+│ Loader       │   │ Handler      │   │              │
+└──────────────┘   └──────────────┘   └──────────────┘
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│ Condition    │   │ Logger       │   │ Types        │
+│ Evaluator    │   │              │   │              │
+└──────────────┘   └──────────────┘   └──────────────┘
+```
 
-1. Create a private fork of this repository
-2. Create a new branch in your fork
-3. Commit on that branch
-4. When you are ready to submit, create a PR back to your fork
-5. Add the user @heartbeat-med (https://github.com/heartbeat-med)
-6. We will comment on the PR
-7. You can either submit more code or we can discuss in the next interview
-8. Any questions, reach out to us!
+### Core Components
+
+#### 1. ConfigLoader (`src/config-loader.ts`)
+
+Loads and parses the questionnaire configuration from JSON files.
+
+- Reads configuration file from disk
+- Validates configuration structure
+- Provides clear error messages for malformed configs
+
+#### 2. ResponseValidator (`src/validator.ts`)
+
+Validates user input based on question type.
+
+- Text validation: Non-empty strings
+- Yes/No validation: Accepts y/n/yes/no (case-insensitive)
+- Multiple-choice validation: Matches against defined choices
+- Returns descriptive error messages
+
+#### 3. UserInputHandler (`src/user-input-handler.ts`)
+
+Manages CLI interaction with the user.
+
+- Displays questions and prompts
+- Reads user input from stdin
+- Displays error messages and summaries
+- Handles graceful shutdown (Ctrl+C)
+
+#### 4. ConditionEvaluator (`src/condition-evaluator.ts`)
+
+Evaluates conditional logic for question display.
+
+- Checks if questions have display conditions
+- Evaluates conditions against previous responses
+- Supports exact match and array-based conditions
+- Handles missing responses gracefully
+
+#### 5. QuestionnaireEngine (`src/engine.ts`)
+
+Orchestrates the questionnaire session flow.
+
+- Manages session lifecycle
+- Iterates through questions sequentially
+- Evaluates conditions for each question
+- Collects and validates responses
+- Generates session summaries
+
+#### 6. Main Application (`src/main.ts`)
+
+Entry point and application lifecycle management.
+
+- Initializes all dependencies
+- Runs cyclic session loop
+- Handles user choice to continue or exit
+- Manages graceful shutdown and error handling
+
+### Design Decisions
+
+#### Dependency Injection
+
+All components receive their dependencies through constructors, making the code:
+
+- Easier to test (can inject mocks)
+- More flexible (can swap implementations)
+- More maintainable (clear dependencies)
+
+#### Type Safety
+
+TypeScript is used throughout for compile-time safety:
+
+- Interfaces define clear contracts
+- Type checking prevents runtime errors
+- Better IDE support and autocomplete
+
+#### Single Responsibility Principle
+
+Each component has one clear purpose:
+
+- ConfigLoader only loads configuration
+- Validator only validates responses
+- Engine only orchestrates flow
+
+#### Error Handling Strategy
+
+- **Configuration Errors**: Display clear message and exit with code 1
+- **Validation Errors**: Display error and re-prompt for same question
+- **System Errors**: Log full error, display user-friendly message, exit gracefully
+
+#### Testability
+
+Components are designed to be easily unit testable:
+
+- Pure functions where possible
+- Dependency injection for mocking
+- Clear input/output contracts
+
+## Testing
+
+The project includes comprehensive unit tests for all core components.
+
+### Test Structure
+
+```text
+tests/
+├── config-loader.test.ts       # Configuration loading tests
+├── validator.test.ts           # Response validation tests
+├── condition-evaluator.test.ts # Conditional logic tests
+├── user-input-handler.test.ts  # CLI interaction tests
+└── engine.test.ts              # Engine orchestration tests
+```
+
+### Test Commands
+
+```bash
+# Run all tests once
+npm test
+
+# Run tests in watch mode (auto-rerun on changes)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- **ConfigLoader**: Valid/invalid JSON, missing files, schema validation
+- **ResponseValidator**: All question types, edge cases, error messages
+- **ConditionEvaluator**: Various condition scenarios, missing responses
+- **UserInputHandler**: Mocked readline interactions, display methods
+- **QuestionnaireEngine**: Full session flow, conditional skipping, validation retry
+
+### Writing Tests
+
+Tests use Vitest as the testing framework. Example test structure:
+
+```typescript
+import { describe, it, expect } from 'vitest';
+
+describe('ComponentName', () => {
+  it('should handle expected behavior', () => {
+    // Arrange
+    const component = new Component();
+
+    // Act
+    const result = component.method();
+
+    // Assert
+    expect(result).toBe(expectedValue);
+  });
+});
+```
+
+## Project Structure
+
+```text
+.
+├── src/
+│   ├── config-loader.ts        # Configuration file loader
+│   ├── condition-evaluator.ts  # Conditional logic evaluator
+│   ├── engine.ts               # Core questionnaire engine
+│   ├── logger.ts               # Logging utility
+│   ├── main.ts                 # Application entry point
+│   ├── types.ts                # TypeScript type definitions
+│   ├── user-input-handler.ts   # CLI interaction handler
+│   └── validator.ts            # Response validator
+├── tests/
+│   ├── config-loader.test.ts
+│   ├── condition-evaluator.test.ts
+│   ├── engine.test.ts
+│   ├── user-input-handler.test.ts
+│   └── validator.test.ts
+├── questionnaire.json          # Sample questionnaire configuration
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## Dependencies
+
+The project uses minimal external dependencies:
+
+- **TypeScript**: Type safety and modern JavaScript features
+- **Vitest**: Fast unit testing framework
+- **Node.js built-ins**: `fs`, `readline` for core functionality
+
+No external libraries are required for the core questionnaire functionality, keeping the project lightweight and maintainable.
+
+## Future Enhancements
+
+Potential improvements for future versions:
+
+- YAML configuration file support
+- Answer persistence (save/load sessions)
+- Export session results to JSON/CSV
+- More complex conditional logic (AND/OR operators)
+- Question branching (skip to specific question)
+- Input history and editing
+- Internationalization support
+- Web-based UI option
+
+## License
+
+MIT
