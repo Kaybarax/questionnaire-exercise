@@ -1,0 +1,54 @@
+{
+  "title": "Customer Feedback Survey",
+  "questions": [
+    {
+      "id": "q1",
+      "text": "What is your name?",
+      "type": "text"
+    },
+    {
+      "id": "q2",
+      "text": "How would you rate our service?",
+      "type": "multiple-choice",
+      "choices": ["Excellent", "Good", "Fair", "Poor"]
+    },
+    {
+      "id": "q3",
+      "text": "Would you recommend us to others?",
+      "type": "yesno"
+    },
+    {
+      "id": "q4",
+      "text": "What specifically did you like about our service?",
+      "type": "text",
+      "condition": {
+        "questionId": "q3",
+        "expectedAnswer": ["yes", "y"]
+      }
+    },
+    {
+      "id": "q5",
+      "text": "Would you like us to contact you about your feedback?",
+      "type": "yesno"
+    },
+    {
+      "id": "q6",
+      "text": "What is your preferred contact method?",
+      "type": "multiple-choice",
+      "choices": ["Email", "Phone", "Text Message"],
+      "condition": {
+        "questionId": "q5",
+        "expectedAnswer": ["yes", "y"]
+      }
+    },
+    {
+      "id": "q7",
+      "text": "Please provide your contact information:",
+      "type": "text",
+      "condition": {
+        "questionId": "q5",
+        "expectedAnswer": ["yes", "y"]
+      }
+    }
+  ]
+}

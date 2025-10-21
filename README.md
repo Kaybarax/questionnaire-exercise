@@ -43,6 +43,47 @@ A questionnaire session should be completed with a summary of the user's respons
 - Include unit tests for your code.
 
 
+## Configuration Format
+
+The questionnaire is defined in `questionnaire.json` in the project root. The configuration follows this structure:
+
+```json
+{
+  "title": "Questionnaire Title",
+  "questions": [
+    {
+      "id": "unique_question_id",
+      "text": "Question text to display",
+      "type": "text | yesno | multiple-choice",
+      "choices": ["Option 1", "Option 2"],
+      "condition": {
+        "questionId": "previous_question_id",
+        "expectedAnswer": ["yes", "y"]
+      }
+    }
+  ]
+}
+```
+
+### Question Types
+
+- **text**: Accepts any non-empty string input
+- **yesno**: Accepts "yes", "no", "y", or "n" (case-insensitive)
+- **multiple-choice**: Accepts one of the predefined choices (requires `choices` array)
+
+### Conditional Questions
+
+Questions can be conditionally displayed based on previous answers:
+
+- `condition.questionId`: The ID of the question whose answer determines if this question is shown
+- `condition.expectedAnswer`: The answer(s) that trigger this question to be displayed (can be a string or array of strings)
+
+If a question has no `condition` field, it will always be displayed.
+
+### Example
+
+See `questionnaire.json` for a complete example with text, yes/no, and multiple-choice questions, including conditional logic.
+
 ## Submission
 
 ### Time
