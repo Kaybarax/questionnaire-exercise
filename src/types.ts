@@ -17,3 +17,11 @@ export interface QuestionnaireConfig {
   title: string;
   questions: QuestionConfig[];
 }
+
+/**
+ * Result of validating a user response
+ */
+export interface ValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
+}
