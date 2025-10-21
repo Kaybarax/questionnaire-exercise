@@ -25,3 +25,13 @@ export interface ValidationResult {
   isValid: boolean;
   errorMessage?: string;
 }
+
+/**
+ * Interface for handling user input and output
+ */
+export interface UserInputHandler {
+  prompt(message: string): Promise<string>;
+  display(message: string): void;
+  displayError(message: string): void;
+  close(): void;
+}
